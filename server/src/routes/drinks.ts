@@ -1,0 +1,111 @@
+import { Router } from 'express';
+import { pool } from '../db';
+
+const router = Router();
+
+// GET all drinks with optional filters
+router.get('/', async (req, res) => {
+  try {
+    const { cafe_id, sort = 'logged_at', order = 'desc' } = req.query;
+
+    let query = `
+      SELECT d.*, c.name as cafe_name, c.address as cafe_address, c.city as cafe_city
+      FROM drinks d
+      JOIN cafes c ON d.cafe_id = c.id
+    `;
+
+    const params: any[] = [];
+
+    if (cafe_id) {
+      query += ' WHERE d.cafe_id = $1';
+      params.push(cafe_id);
+    }
+
+    const validSorts = ['logged_at', 'rating', 'created_at'];
+    const sortColumn = validSorts.includes(sort as string) ? sort : 'logged_at';
+    const sortOrder = order === 'asc' ? 'ASC' : 'DESC';
+
+    query += ` ORDER BY d.${sortColumn} ${sortOrder}`;
+
+    const result = await pool.query(query, params);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching drinks:', error);
+    res.status(500).json({ error: 'Failed to fetch drinks' });
+  }
+});
+
+// GET single drink
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(`
+      SELECT d.*, c.name as cafe_name, c.address as cafe_address, c.city as cafe_city
+      FROM drinks d
+      JOIN cafes c ON d.cafe_id = c.id
+      WHERE d.id = $1
+    `, [id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Drink not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching drink:', error);
+    res.status(500).json({ error: 'Failed to fetch drink' });
+  }
+});
+
+// POST create drink
+router.post('/', async (req, res) => {
+  try {
+    const { cafe_id, drink_type, rating, notes, logged_at } = req.body;
+
+    // Validation
+    if (!cafe_id || !drink_type || rating === undefined) {
+      return res.status(400).json({
+        error: 'cafe_id, drink_type, and rating are required'
+      });
+    }
+
+    if (rating < 0 || rating > 5) {
+      return res.status(400).json({
+        error: 'Rating must be between 0 and 5'
+      });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO drinks (cafe_id, drink_type, rating, notes, logged_at)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [cafe_id, drink_type, rating, notes || null, logged_at || new Date()]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error creating drink:', error);
+    res.status(500).json({ error: 'Failed to create drink' });
+  }
+});
+
+// DELETE drink
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      'DELETE FROM drinks WHERE id = $1 RETURNING *',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Drink not found' });
+    }
+
+    res.json({ message: 'Drink deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting drink:', error);
+    res.status(500).json({ error: 'Failed to delete drink' });
+  }
+});
+
+export default router;

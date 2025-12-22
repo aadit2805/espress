@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+/* Restoration Hardware x Cafe - Warm, Luxe, Lived-in */
+
+:root {
+  /* Warm bone/tan neutrals */
+  --bone: #E8E0D5;
+  --bone-light: #F0EBE3;
+  --linen: #DED6CA;
+  --taupe: #C9BFB0;
+  --taupe-dark: #B5A898;
+
+  /* Rich coffee tones */
+  --espresso: #2C2420;
+  --coffee: #4A3F35;
+  --mocha: #6B5B4F;
+  --latte: #8B7E74;
+
+  /* Accent - muted sage/olive */
+  --sage: #9CA88B;
+  --sage-dark: #7A8A68;
+  --olive: #5C6650;
+
+  /* Warm accent */
+  --terracotta: #C4846C;
+  --terracotta-muted: #D4A088;
+
+  /* Functional */
+  --background: var(--bone);
+  --foreground: var(--espresso);
+  --card: #FAF8F5;
+  --card-border: var(--taupe);
+  --muted: var(--latte);
+  --accent: var(--sage);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Custom colors */
+  --color-bone: var(--bone);
+  --color-bone-light: var(--bone-light);
+  --color-linen: var(--linen);
+  --color-taupe: var(--taupe);
+  --color-taupe-dark: var(--taupe-dark);
+  --color-espresso: var(--espresso);
+  --color-coffee: var(--coffee);
+  --color-mocha: var(--mocha);
+  --color-latte: var(--latte);
+  --color-sage: var(--sage);
+  --color-sage-dark: var(--sage-dark);
+  --color-olive: var(--olive);
+  --color-terracotta: var(--terracotta);
+  --color-terracotta-muted: var(--terracotta-muted);
+  --color-card: var(--card);
+  --color-card-border: var(--card-border);
+
+  /* Typography */
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+}
+
+/* Force light mode - warm bone background always */
+html {
+  color-scheme: light;
+}
+
+body {
+  background: var(--background) !important;
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* Input styles - dark readable text */
+input, textarea, select {
+  color: var(--espresso) !important;
+  background-color: var(--card) !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--taupe-dark) !important;
+  opacity: 1;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--linen);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--taupe-dark);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mocha);
+}
+
+/* Selection color */
+::selection {
+  background: var(--terracotta-muted);
+  color: var(--espresso);
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+}
+
+/* Smooth animations */
+* {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
