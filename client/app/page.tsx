@@ -89,20 +89,16 @@ export default function LogPage() {
         lng: selectedPlace?.lng,
       });
 
-      // Update cafes list and auto-select the new cafe
-      setCafes(prev => [newCafe, ...prev]);
-
-      // Clear form
+      // Clear form first
       setNewCafeName('');
       setNewCafeAddress('');
       setNewCafeCity('');
       setSelectedPlace(null);
       setShowNewCafe(false);
 
-      // Auto-select after state updates
-      setTimeout(() => {
-        setSelectedCafeId(String(newCafe.id));
-      }, 0);
+      // Update cafes list and auto-select the new cafe
+      setCafes(prev => [newCafe, ...prev]);
+      setSelectedCafeId(String(newCafe.id));
     } catch (error) {
       console.error('Error creating cafe:', error);
     }
@@ -201,7 +197,7 @@ export default function LogPage() {
           <label className="block text-xs tracking-[0.15em] uppercase text-[var(--mocha)]">
             Where
           </label>
-          <Select.Root value={selectedCafeId} onValueChange={setSelectedCafeId}>
+          <Select.Root key={`cafe-select-${cafes.length}-${selectedCafeId}`} value={selectedCafeId} onValueChange={setSelectedCafeId}>
             <Select.Trigger
               className={clsx(
                 "w-full px-4 py-4 text-left bg-[var(--card)] border border-[var(--taupe)]/40 rounded-lg text-[var(--espresso)]",

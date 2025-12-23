@@ -425,6 +425,52 @@ export default function StatsPage() {
           </p>
         </div>
       </motion.div>
+
+      {/* Clear Data Section */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.9 }}
+        className="mt-16 pt-8 border-t border-[var(--taupe)]/20"
+      >
+        <div className="text-center">
+          <p className="text-sm text-[var(--latte)] mb-4">Need a fresh start?</p>
+          <AlertDialog.Root>
+            <AlertDialog.Trigger asChild>
+              <button className="text-sm text-red-600 hover:text-red-700 transition-colors">
+                Clear all my data
+              </button>
+            </AlertDialog.Trigger>
+            <AlertDialog.Portal>
+              <AlertDialog.Overlay className="fixed inset-0 bg-[var(--espresso)]/40 backdrop-blur-sm z-50" />
+              <AlertDialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl z-50">
+                <AlertDialog.Title className="font-[family-name:var(--font-serif)] text-2xl text-[var(--coffee)] mb-4">
+                  Delete all data?
+                </AlertDialog.Title>
+                <AlertDialog.Description className="text-[var(--mocha)] mb-6">
+                  This will permanently delete all your cafes and drink entries. This action cannot be undone.
+                </AlertDialog.Description>
+                <div className="flex gap-3">
+                  <AlertDialog.Cancel asChild>
+                    <button className="flex-1 py-3 px-4 rounded-lg border border-[var(--taupe)]/40 text-[var(--mocha)] hover:bg-[var(--bone-light)] transition-colors">
+                      Cancel
+                    </button>
+                  </AlertDialog.Cancel>
+                  <AlertDialog.Action asChild>
+                    <button
+                      onClick={handleDeleteAllData}
+                      disabled={deleting}
+                      className="flex-1 py-3 px-4 rounded-lg font-medium bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50"
+                    >
+                      {deleting ? 'Deleting...' : 'Delete Everything'}
+                    </button>
+                  </AlertDialog.Action>
+                </div>
+              </AlertDialog.Content>
+            </AlertDialog.Portal>
+          </AlertDialog.Root>
+        </div>
+      </motion.div>
     </div>
   );
 }
