@@ -22,7 +22,7 @@ A personal coffee logging app to track your coffee experiences, discover pattern
 ### 1. Clone and Install
 
 ```bash
-git clone git@github.com:aadit2805/geekd.git
+git clone <your-repo-url>
 cd geekd
 
 # Install frontend dependencies
@@ -53,11 +53,7 @@ docker run --name geekd-db -e POSTGRES_DB=geekd -e POSTGRES_PASSWORD=postgres -p
 ```bash
 cd server
 export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/geekd"
-
-psql $DATABASE_URL -f migrations/001_init.sql
-psql $DATABASE_URL -f migrations/002_add_user_id.sql
-psql $DATABASE_URL -f migrations/003_add_auth.sql
-psql $DATABASE_URL -f migrations/004_add_place_data.sql
+for file in migrations/*.sql; do psql $DATABASE_URL -f "$file"; done
 ```
 
 ### 4. Environment Variables
