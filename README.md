@@ -101,27 +101,3 @@ cd client
 npm run dev
 # Runs on http://localhost:3000
 ```
-
-## Project Structure
-
-```
-geekd/
-├── client/                 # Next.js frontend
-│   ├── app/
-│   │   ├── page.tsx       # Landing
-│   │   ├── journal/       # Log drinks
-│   │   ├── history/       # Archive
-│   │   ├── stats/         # Insights
-│   │   └── map/           # Cafe map
-│   ├── components/
-│   └── lib/api.ts         # API client
-│
-├── server/                 # Express backend
-│   ├── src/
-│   │   ├── index.ts
-│   │   ├── db.ts
-│   │   └── routes/
-│   └── migrations/
-│
-└── README.md
-```
