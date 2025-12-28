@@ -5,6 +5,7 @@ import { getCafes, type Cafe } from '@/lib/api';
 import { GoogleMap, useLoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
@@ -86,7 +87,7 @@ export default function MapPage() {
   if (loadError) {
     return (
       <div className="text-center py-32">
-        <p className="text-[var(--latte)]">Error loading maps</p>
+        <p className="text-latte">Error loading maps</p>
       </div>
     );
   }
@@ -97,7 +98,7 @@ export default function MapPage() {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-          className="w-8 h-8 border-2 border-[var(--taupe)] border-t-[var(--coffee)] rounded-full"
+          className="w-8 h-8 border-2 border-taupe border-t-coffee rounded-full"
         />
       </div>
     );
@@ -112,10 +113,10 @@ export default function MapPage() {
         transition={{ duration: 0.6 }}
         className="text-center mb-12"
       >
-        <h1 className="font-[family-name:var(--font-serif)] text-4xl md:text-5xl text-[var(--coffee)] mb-4">
+        <h1 className="font-serif text-4xl md:text-5xl text-coffee mb-4">
           Your Coffee Map
         </h1>
-        <p className="text-[var(--latte)] tracking-wide">
+        <p className="text-latte tracking-wide">
           {cafesWithLocation.length} {cafesWithLocation.length === 1 ? 'spot' : 'spots'} on your journey
         </p>
       </motion.div>
@@ -128,17 +129,17 @@ export default function MapPage() {
         className="mb-8"
       >
         {cafesWithLocation.length === 0 ? (
-          <Card className="border-[var(--taupe)]/20 p-12 text-center">
-            <p className="text-[var(--mocha)] mb-4">No cafes with location data yet</p>
-            <p className="text-sm text-[var(--latte)]">
+          <Card className="border-(--taupe)/20 p-12 text-center">
+            <p className="text-mocha mb-4">No cafes with location data yet</p>
+            <p className="text-sm text-latte">
               Add cafes using the search feature to see them on the map
             </p>
-            <Button asChild className="mt-6 bg-[var(--coffee)] hover:bg-[var(--espresso)]">
+            <Button asChild className="mt-6 bg-coffee hover:bg-espresso">
               <Link href="/">Log a Coffee</Link>
             </Button>
           </Card>
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-[var(--taupe)]/20 shadow-lg">
+          <div className="overflow-hidden rounded-2xl border border-(--taupe)/20 shadow-lg">
             <GoogleMap
               mapContainerStyle={mapContainerStyle}
               center={mapCenter}
@@ -173,20 +174,23 @@ export default function MapPage() {
                 >
                   <div className="p-2 min-w-[200px]">
                     {selectedCafe.photo_reference && (
-                      <img
+                      <Image
                         src={selectedCafe.photo_reference}
                         alt={selectedCafe.name}
+                        width={200}
+                        height={96}
                         className="w-full h-24 object-cover rounded mb-2"
+                        unoptimized
                       />
                     )}
-                    <h3 className="font-medium text-[var(--coffee)] text-lg">
+                    <h3 className="font-medium text-coffee text-lg">
                       {selectedCafe.name}
                     </h3>
                     {selectedCafe.address && (
                       <p className="text-sm text-gray-600 mt-1">{selectedCafe.address}</p>
                     )}
                     {selectedCafe.drink_count !== undefined && (
-                      <p className="text-sm text-[var(--terracotta)] mt-2">
+                      <p className="text-sm text-terracotta mt-2">
                         {selectedCafe.drink_count} {Number(selectedCafe.drink_count) === 1 ? 'visit' : 'visits'}
                       </p>
                     )}
@@ -205,7 +209,7 @@ export default function MapPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <h2 className="font-[family-name:var(--font-serif)] text-2xl text-[var(--coffee)] mb-6">
+          <h2 className="font-serif text-2xl text-coffee mb-6">
             All Locations
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -218,23 +222,26 @@ export default function MapPage() {
                     setMapCenter({ lat: Number(cafe.lat), lng: Number(cafe.lng) });
                   }
                 }}
-                className="bg-white border border-[var(--taupe)]/20 rounded-xl p-4 text-left hover:border-[var(--terracotta)]/50 hover:shadow-md transition-all"
+                className="bg-white border border-(--taupe)/20 rounded-xl p-4 text-left hover:border-(--terracotta)/50 hover:shadow-md transition-all"
               >
                 <div className="flex gap-4">
                   {cafe.photo_reference && (
-                    <img
+                    <Image
                       src={cafe.photo_reference}
                       alt={cafe.name}
-                      className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                      width={64}
+                      height={64}
+                      className="w-16 h-16 object-cover rounded-lg shrink-0"
+                      unoptimized
                     />
                   )}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-[var(--coffee)] truncate">{cafe.name}</h3>
+                    <h3 className="font-medium text-coffee truncate">{cafe.name}</h3>
                     {cafe.city && (
-                      <p className="text-sm text-[var(--latte)] truncate">{cafe.city}</p>
+                      <p className="text-sm text-latte truncate">{cafe.city}</p>
                     )}
                     {cafe.drink_count !== undefined && (
-                      <p className="text-sm text-[var(--terracotta)] mt-1">
+                      <p className="text-sm text-terracotta mt-1">
                         {cafe.drink_count} {Number(cafe.drink_count) === 1 ? 'visit' : 'visits'}
                       </p>
                     )}

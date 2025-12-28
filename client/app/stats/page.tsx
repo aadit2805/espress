@@ -53,7 +53,7 @@ export default function StatsPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="w-6 h-6 border-2 border-[var(--taupe)] border-t-[var(--coffee)] rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-taupe border-t-coffee rounded-full animate-spin" />
       </div>
     );
   }
@@ -61,7 +61,7 @@ export default function StatsPage() {
   if (!stats) {
     return (
       <div className="text-center py-20">
-        <p className="text-[var(--mocha)]">Unable to load stats</p>
+        <p className="text-mocha">Unable to load stats</p>
       </div>
     );
   }
@@ -73,10 +73,10 @@ export default function StatsPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 p-4 bg-gradient-to-r from-[var(--terracotta)]/10 to-[var(--sage)]/10 border border-[var(--terracotta)]/20 rounded-xl text-center"
+          className="mb-8 p-4 bg-linear-to-r from-(--terracotta)/10 to-(--sage)/10 border border-(--terracotta)/20 rounded-xl text-center"
         >
-          <p className="text-sm text-[var(--mocha)]">
-            <span className="text-2xl font-medium text-[var(--coffee)]">{stats.current_streak}</span>
+          <p className="text-sm text-mocha">
+            <span className="text-2xl font-medium text-coffee">{stats.current_streak}</span>
             {' '}day streak
           </p>
         </motion.div>
@@ -88,28 +88,28 @@ export default function StatsPage() {
         animate={{ opacity: 1 }}
         className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
       >
-        <Card className="border-[var(--taupe)]/20">
+        <Card className="border-(--taupe)/20">
           <CardContent className="p-4 text-center">
-            <p className="text-2xl font-medium text-[var(--coffee)]">{stats.total_drinks}</p>
-            <p className="text-xs text-[var(--taupe-dark)]">cups</p>
+            <p className="text-2xl font-medium text-coffee">{stats.total_drinks}</p>
+            <p className="text-xs text-taupe-dark">cups</p>
           </CardContent>
         </Card>
-        <Card className="border-[var(--taupe)]/20">
+        <Card className="border-(--taupe)/20">
           <CardContent className="p-4 text-center">
-            <p className="text-2xl font-medium text-[var(--coffee)]">{stats.cafes_visited}</p>
-            <p className="text-xs text-[var(--taupe-dark)]">cafes</p>
+            <p className="text-2xl font-medium text-coffee">{stats.cafes_visited}</p>
+            <p className="text-xs text-taupe-dark">cafes</p>
           </CardContent>
         </Card>
-        <Card className="border-[var(--taupe)]/20">
+        <Card className="border-(--taupe)/20">
           <CardContent className="p-4 text-center">
-            <p className="text-2xl font-medium text-[var(--coffee)]">{Number(stats.average_rating).toFixed(1)}</p>
-            <p className="text-xs text-[var(--taupe-dark)]">avg rating</p>
+            <p className="text-2xl font-medium text-coffee">{Number(stats.average_rating).toFixed(1)}</p>
+            <p className="text-xs text-taupe-dark">avg rating</p>
           </CardContent>
         </Card>
-        <Card className="border-[var(--taupe)]/20">
+        <Card className="border-(--taupe)/20">
           <CardContent className="p-4 text-center">
-            <p className="text-2xl font-medium text-[var(--coffee)]">{stats.longest_streak}</p>
-            <p className="text-xs text-[var(--taupe-dark)]">best streak</p>
+            <p className="text-2xl font-medium text-coffee">{stats.longest_streak}</p>
+            <p className="text-xs text-taupe-dark">best streak</p>
           </CardContent>
         </Card>
       </motion.div>
@@ -122,13 +122,13 @@ export default function StatsPage() {
           transition={{ delay: 0.1 }}
           className="mb-8"
         >
-          <h2 className="text-xs font-medium text-[var(--taupe-dark)] mb-3">Milestones</h2>
+          <h2 className="text-xs font-medium text-taupe-dark mb-3">Milestones</h2>
           <div className="flex flex-wrap gap-2">
             {stats.milestones.map((m) => (
               <Badge
                 key={m.label}
                 variant="secondary"
-                className="bg-[var(--linen)] text-[var(--mocha)]"
+                className="bg-linen text-mocha"
               >
                 {m.label}
               </Badge>
@@ -144,13 +144,13 @@ export default function StatsPage() {
         transition={{ delay: 0.15 }}
         className="grid grid-cols-2 gap-4 mb-8"
       >
-        <div className="bg-white border border-[var(--taupe)]/20 rounded-xl p-4">
-          <p className="text-xs text-[var(--taupe-dark)] mb-1">This week</p>
-          <p className="text-xl font-medium text-[var(--coffee)]">{stats.drinks_this_week} cups</p>
+        <div className="bg-white border border-(--taupe)/20 rounded-xl p-4">
+          <p className="text-xs text-taupe-dark mb-1">This week</p>
+          <p className="text-xl font-medium text-coffee">{stats.drinks_this_week} cups</p>
         </div>
-        <div className="bg-white border border-[var(--taupe)]/20 rounded-xl p-4">
-          <p className="text-xs text-[var(--taupe-dark)] mb-1">This month</p>
-          <p className="text-xl font-medium text-[var(--coffee)]">{stats.drinks_this_month} cups</p>
+        <div className="bg-white border border-(--taupe)/20 rounded-xl p-4">
+          <p className="text-xs text-taupe-dark mb-1">This month</p>
+          <p className="text-xl font-medium text-coffee">{stats.drinks_this_month} cups</p>
         </div>
       </motion.div>
 
@@ -162,20 +162,20 @@ export default function StatsPage() {
           transition={{ delay: 0.2 }}
           className="mb-8"
         >
-          <h2 className="text-xs font-medium text-[var(--taupe-dark)] mb-3">Top Cafes</h2>
-          <div className="bg-white border border-[var(--taupe)]/20 rounded-xl divide-y divide-[var(--taupe)]/10">
+          <h2 className="text-xs font-medium text-taupe-dark mb-3">Top Cafes</h2>
+          <div className="bg-white border border-(--taupe)/20 rounded-xl divide-y divide-(--taupe)/10">
             {stats.top_cafes.slice(0, 5).map((cafe, i) => (
               <div key={cafe.cafe_name} className="flex items-center justify-between p-3">
                 <div className="flex items-center gap-3">
                   <span className={clsx(
                     "w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium",
-                    i === 0 ? "bg-[var(--terracotta)] text-white" : "bg-[var(--linen)] text-[var(--mocha)]"
+                    i === 0 ? "bg-terracotta text-white" : "bg-linen text-mocha"
                   )}>
                     {i + 1}
                   </span>
-                  <span className="text-[var(--coffee)]">{cafe.cafe_name}</span>
+                  <span className="text-coffee">{cafe.cafe_name}</span>
                 </div>
-                <span className="text-sm text-[var(--taupe-dark)]">{cafe.visit_count}</span>
+                <span className="text-sm text-taupe-dark">{cafe.visit_count}</span>
               </div>
             ))}
           </div>
@@ -190,25 +190,25 @@ export default function StatsPage() {
           transition={{ delay: 0.25 }}
           className="mb-8"
         >
-          <h2 className="text-xs font-medium text-[var(--taupe-dark)] mb-3">Favorite Drinks</h2>
-          <div className="bg-white border border-[var(--taupe)]/20 rounded-xl p-4 space-y-3">
+          <h2 className="text-xs font-medium text-taupe-dark mb-3">Favorite Drinks</h2>
+          <div className="bg-white border border-(--taupe)/20 rounded-xl p-4 space-y-3">
             {stats.drink_type_breakdown.slice(0, 5).map((type, i) => {
               const max = Math.max(...stats.drink_type_breakdown.map(t => Number(t.count)));
               const pct = (Number(type.count) / max) * 100;
               return (
                 <div key={type.drink_type}>
                   <div className="flex justify-between text-sm mb-1">
-                    <span className="text-[var(--coffee)]">{type.drink_type}</span>
-                    <span className="text-[var(--taupe-dark)]">{type.count}</span>
+                    <span className="text-coffee">{type.drink_type}</span>
+                    <span className="text-taupe-dark">{type.count}</span>
                   </div>
-                  <div className="h-1.5 bg-[var(--linen)] rounded-full">
+                  <div className="h-1.5 bg-linen rounded-full">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${pct}%` }}
                       transition={{ delay: 0.3 + i * 0.05 }}
                       className={clsx(
                         "h-full rounded-full",
-                        i === 0 ? "bg-[var(--terracotta)]" : "bg-[var(--taupe)]"
+                        i === 0 ? "bg-terracotta" : "bg-taupe"
                       )}
                     />
                   </div>
@@ -228,17 +228,17 @@ export default function StatsPage() {
           className="grid grid-cols-2 gap-4 mb-8"
         >
           {stats.best_day && (
-            <div className="bg-white border border-[var(--taupe)]/20 rounded-xl p-4">
-              <p className="text-xs text-[var(--taupe-dark)] mb-1">Best day</p>
-              <p className="font-medium text-[var(--coffee)]">{stats.best_day.day}</p>
-              <p className="text-xs text-[var(--mocha)]">{Number(stats.best_day.avg_rating).toFixed(1)} avg</p>
+            <div className="bg-white border border-(--taupe)/20 rounded-xl p-4">
+              <p className="text-xs text-taupe-dark mb-1">Best day</p>
+              <p className="font-medium text-coffee">{stats.best_day.day}</p>
+              <p className="text-xs text-mocha">{Number(stats.best_day.avg_rating).toFixed(1)} avg</p>
             </div>
           )}
           {stats.best_time && (
-            <div className="bg-white border border-[var(--taupe)]/20 rounded-xl p-4">
-              <p className="text-xs text-[var(--taupe-dark)] mb-1">Best time</p>
-              <p className="font-medium text-[var(--coffee)] capitalize">{stats.best_time.time}</p>
-              <p className="text-xs text-[var(--mocha)]">{Number(stats.best_time.avg_rating).toFixed(1)} avg</p>
+            <div className="bg-white border border-(--taupe)/20 rounded-xl p-4">
+              <p className="text-xs text-taupe-dark mb-1">Best time</p>
+              <p className="font-medium text-coffee capitalize">{stats.best_time.time}</p>
+              <p className="text-xs text-mocha">{Number(stats.best_time.avg_rating).toFixed(1)} avg</p>
             </div>
           )}
         </motion.div>
@@ -249,23 +249,23 @@ export default function StatsPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="pt-8 border-t border-[var(--taupe)]/20 text-center"
+        className="pt-8 border-t border-(--taupe)/20 text-center"
       >
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="ghost" className="text-xs text-[var(--taupe-dark)] hover:text-red-600 h-auto py-1">
+            <Button variant="ghost" className="text-xs text-taupe-dark hover:text-red-600 h-auto py-1">
               Clear all data
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent className="bg-white max-w-xs">
             <AlertDialogHeader>
-              <AlertDialogTitle className="text-[var(--coffee)]">Delete all data?</AlertDialogTitle>
-              <AlertDialogDescription className="text-[var(--mocha)]">
+              <AlertDialogTitle className="text-coffee">Delete all data?</AlertDialogTitle>
+              <AlertDialogDescription className="text-mocha">
                 This permanently deletes all your entries and cafes.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="border-[var(--taupe)]/30 text-[var(--mocha)] hover:bg-[var(--linen)]">
+              <AlertDialogCancel className="border-(--taupe)/30 text-mocha hover:bg-linen">
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction

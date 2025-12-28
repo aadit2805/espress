@@ -59,27 +59,39 @@ export default function LogPage() {
     }
   };
 
-  const handleQuickLog = async () => {
+  const handleQuickLog = () => {
     if (!lastDrink) return;
-    setLoading(true);
-    try {
-      await createDrink({
-        cafe_id: lastDrink.cafe_id,
-        drink_type: lastDrink.drink_type,
-        rating: Number(lastDrink.rating),
-      });
-      router.push('/history');
-    } catch (error) {
-      console.error('Error quick logging:', error);
-      setLoading(false);
-    }
+    setSelectedCafeId(String(lastDrink.cafe_id));
+    setDrinkType(lastDrink.drink_type);
   };
 
-  const handlePlaceSelect = (place: PlaceResult) => {
-    setSelectedPlace(place);
-    setNewCafeName(place.name);
-    setNewCafeAddress(place.address);
-    setNewCafeCity(place.city);
+  const handlePlaceSelect = async (place: PlaceResult) => {
+    try {
+      const newCafe = await createCafe({
+        name: place.name,
+        address: place.address || undefined,
+        city: place.city || undefined,
+        place_id: place.place_id,
+        photo_reference: place.photo_reference,
+        lat: place.lat,
+        lng: place.lng,
+      });
+
+      setShowNewCafe(false);
+      setCafes(prev => [newCafe, ...prev]);
+      setSelectedCafeId(String(newCafe.id));
+      setSelectedPlace(null);
+      setNewCafeName('');
+      setNewCafeAddress('');
+      setNewCafeCity('');
+    } catch (error) {
+      console.error('Error creating cafe:', error);
+      // Fall back to manual entry if auto-create fails
+      setSelectedPlace(place);
+      setNewCafeName(place.name);
+      setNewCafeAddress(place.address);
+      setNewCafeCity(place.city);
+    }
   };
 
   const handleCreateCafe = async () => {
@@ -141,18 +153,17 @@ export default function LogPage() {
           animate={{ opacity: 1, y: 0 }}
           type="button"
           onClick={handleQuickLog}
-          disabled={loading}
-          className="w-full mb-8 p-4 bg-[var(--linen)] border border-[var(--taupe)]/20 rounded-xl hover:border-[var(--terracotta)]/40 transition-all text-left group"
+          className="w-full mb-8 p-4 bg-linen border border-(--taupe)/20 rounded-xl hover:border-(--terracotta)/40 transition-all text-left group"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-[var(--taupe-dark)] mb-0.5">Quick repeat</p>
-              <p className="font-medium text-[var(--coffee)]">
-                {lastDrink.drink_type} <span className="text-[var(--mocha)] font-normal">at</span> {lastDrink.cafe_name}
+              <p className="text-xs text-taupe-dark mb-0.5">Quick repeat</p>
+              <p className="font-medium text-coffee">
+                {lastDrink.drink_type} <span className="text-mocha font-normal">at</span> {lastDrink.cafe_name}
               </p>
             </div>
-            <span className="text-sm text-[var(--terracotta)] opacity-0 group-hover:opacity-100 transition-opacity">
-              Log →
+            <span className="text-sm text-terracotta opacity-0 group-hover:opacity-100 transition-opacity">
+              Fill →
             </span>
           </div>
         </motion.button>
@@ -167,21 +178,21 @@ export default function LogPage() {
       >
         {/* Cafe */}
         <div>
-          <label className="block text-xs font-medium text-[var(--mocha)] mb-2">Cafe</label>
+          <label className="block text-xs font-medium text-mocha mb-2">Cafe</label>
           <Select.Root key={`cafe-${cafes.length}-${selectedCafeId}`} value={selectedCafeId} onValueChange={setSelectedCafeId}>
             <Select.Trigger
               className={clsx(
-                "w-full px-4 py-3 text-left bg-white border border-[var(--taupe)]/30 rounded-lg",
-                "hover:border-[var(--taupe)]/50 transition-colors",
-                "focus:outline-none focus:ring-2 focus:ring-[var(--coffee)]/20",
-                "data-[placeholder]:text-[var(--taupe-dark)]"
+                "w-full px-4 py-3 text-left bg-white border border-(--taupe)/30 rounded-lg",
+                "hover:border-(--taupe)/50 transition-colors",
+                "focus:outline-none focus:ring-2 focus:ring-(--coffee)/20",
+                "data-placeholder:text-taupe-dark"
               )}
             >
               <Select.Value placeholder="Select cafe..." />
             </Select.Trigger>
             <Select.Portal>
               <Select.Content
-                className="bg-white border border-[var(--taupe)]/20 rounded-lg shadow-xl z-50 max-h-[280px] overflow-auto"
+                className="bg-white border border-(--taupe)/20 rounded-lg shadow-xl z-50 max-h-[280px] overflow-auto"
                 position="popper"
                 sideOffset={4}
               >
@@ -190,11 +201,11 @@ export default function LogPage() {
                     <Select.Item
                       key={cafe.id}
                       value={String(cafe.id)}
-                      className="px-3 py-2 rounded cursor-pointer outline-none hover:bg-[var(--linen)] data-[highlighted]:bg-[var(--linen)]"
+                      className="px-3 py-2 rounded cursor-pointer outline-none hover:bg-linen data-highlighted:bg-linen"
                     >
                       <Select.ItemText>
-                        <span className="text-[var(--coffee)]">{cafe.name}</span>
-                        {cafe.city && <span className="text-[var(--taupe-dark)] ml-2 text-sm">{cafe.city}</span>}
+                        <span className="text-coffee">{cafe.name}</span>
+                        {cafe.city && <span className="text-taupe-dark ml-2 text-sm">{cafe.city}</span>}
                       </Select.ItemText>
                     </Select.Item>
                   ))}
@@ -206,7 +217,7 @@ export default function LogPage() {
           <button
             type="button"
             onClick={() => setShowNewCafe(!showNewCafe)}
-            className="mt-2 text-sm text-[var(--terracotta)] hover:text-[var(--coffee)] transition-colors"
+            className="mt-2 text-sm text-terracotta hover:text-coffee transition-colors"
           >
             {showNewCafe ? '− Cancel' : '+ New cafe'}
           </button>
@@ -219,23 +230,23 @@ export default function LogPage() {
                 exit={{ opacity: 0, height: 0 }}
                 className="overflow-hidden"
               >
-                <div className="mt-3 p-4 bg-white border border-[var(--taupe)]/20 rounded-lg space-y-3">
+                <div className="mt-3 p-4 bg-white border border-(--taupe)/20 rounded-lg space-y-3">
                   <PlacesAutocomplete onPlaceSelect={handlePlaceSelect} placeholder="Search places..." />
 
                   {selectedPlace && (
-                    <div className="p-3 bg-[var(--linen)] rounded-lg">
-                      <p className="font-medium text-[var(--coffee)] text-sm">{selectedPlace.name}</p>
-                      <p className="text-xs text-[var(--mocha)]">{selectedPlace.address}</p>
+                    <div className="p-3 bg-linen rounded-lg">
+                      <p className="font-medium text-coffee text-sm">{selectedPlace.name}</p>
+                      <p className="text-xs text-mocha">{selectedPlace.address}</p>
                     </div>
                   )}
 
-                  <div className="text-xs text-[var(--taupe-dark)] pt-2 border-t border-[var(--taupe)]/10">Or manually:</div>
+                  <div className="text-xs text-taupe-dark pt-2 border-t border-(--taupe)/10">Or manually:</div>
                   <input
                     type="text"
                     value={newCafeName}
                     onChange={(e) => { setNewCafeName(e.target.value); setSelectedPlace(null); }}
                     placeholder="Cafe name"
-                    className="w-full px-3 py-2 text-sm bg-[var(--bone)] border border-[var(--taupe)]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--coffee)]/20"
+                    className="w-full px-3 py-2 text-sm bg-bone border border-(--taupe)/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-(--coffee)/20"
                   />
                   <div className="grid grid-cols-2 gap-2">
                     <input
@@ -243,13 +254,13 @@ export default function LogPage() {
                       value={newCafeCity}
                       onChange={(e) => setNewCafeCity(e.target.value)}
                       placeholder="City"
-                      className="px-3 py-2 text-sm bg-[var(--bone)] border border-[var(--taupe)]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--coffee)]/20"
+                      className="px-3 py-2 text-sm bg-bone border border-(--taupe)/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-(--coffee)/20"
                     />
                     <button
                       type="button"
                       onClick={handleCreateCafe}
                       disabled={!newCafeName.trim()}
-                      className="px-3 py-2 text-sm bg-[var(--coffee)] text-white rounded-lg hover:bg-[var(--espresso)] disabled:opacity-50 transition-colors"
+                      className="px-3 py-2 text-sm bg-coffee text-white rounded-lg hover:bg-espresso disabled:opacity-50 transition-colors"
                     >
                       Add
                     </button>
@@ -262,14 +273,14 @@ export default function LogPage() {
 
         {/* Drink */}
         <div className="relative" ref={autocompleteRef}>
-          <label className="block text-xs font-medium text-[var(--mocha)] mb-2">Drink</label>
+          <label className="block text-xs font-medium text-mocha mb-2">Drink</label>
           <input
             type="text"
             value={drinkType}
             onChange={(e) => { setDrinkType(e.target.value); setShowAutocomplete(true); }}
             onFocus={() => setShowAutocomplete(true)}
             placeholder="Cortado, Latte, Pour Over..."
-            className="w-full px-4 py-3 bg-white border border-[var(--taupe)]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--coffee)]/20"
+            className="w-full px-4 py-3 bg-white border border-(--taupe)/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-(--coffee)/20"
             required
           />
 
@@ -279,14 +290,14 @@ export default function LogPage() {
                 initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -5 }}
-                className="absolute top-full left-0 right-0 mt-1 bg-white border border-[var(--taupe)]/20 rounded-lg shadow-lg z-50"
+                className="absolute top-full left-0 right-0 mt-1 bg-white border border-(--taupe)/20 rounded-lg shadow-lg z-50"
               >
                 {filteredDrinkTypes.slice(0, 4).map((type) => (
                   <button
                     key={type}
                     type="button"
                     onClick={() => { setDrinkType(type); setShowAutocomplete(false); }}
-                    className="w-full px-4 py-2 text-left text-sm text-[var(--coffee)] hover:bg-[var(--linen)]"
+                    className="w-full px-4 py-2 text-left text-sm text-coffee hover:bg-linen"
                   >
                     {type}
                   </button>
@@ -302,7 +313,7 @@ export default function LogPage() {
                   key={type}
                   type="button"
                   onClick={() => setDrinkType(type)}
-                  className="px-2.5 py-1 text-xs bg-[var(--linen)] text-[var(--mocha)] rounded-full hover:bg-[var(--taupe)]/30 transition-colors"
+                  className="px-2.5 py-1 text-xs bg-linen text-mocha rounded-full hover:bg-(--taupe)/30 transition-colors"
                 >
                   {type}
                 </button>
@@ -313,7 +324,7 @@ export default function LogPage() {
 
         {/* Rating */}
         <div>
-          <label className="block text-xs font-medium text-[var(--mocha)] mb-2">Rating</label>
+          <label className="block text-xs font-medium text-mocha mb-2">Rating</label>
           <div className="flex gap-1">
             {[1, 2, 3, 4, 5].map((n) => (
               <button
@@ -323,15 +334,15 @@ export default function LogPage() {
                 className={clsx(
                   "flex-1 py-3 rounded-lg text-sm font-medium transition-all",
                   rating === n
-                    ? "bg-[var(--coffee)] text-white"
-                    : "bg-white border border-[var(--taupe)]/30 text-[var(--mocha)] hover:border-[var(--coffee)]/30"
+                    ? "bg-coffee text-white"
+                    : "bg-white border border-(--taupe)/30 text-mocha hover:border-(--coffee)/30"
                 )}
               >
                 {n}
               </button>
             ))}
           </div>
-          <div className="flex justify-between mt-1.5 text-[10px] text-[var(--taupe-dark)] px-1">
+          <div className="flex justify-between mt-1.5 text-[10px] text-taupe-dark px-1">
             <span>Skip it</span>
             <span>Perfect</span>
           </div>
@@ -339,15 +350,15 @@ export default function LogPage() {
 
         {/* Notes */}
         <div>
-          <label className="block text-xs font-medium text-[var(--mocha)] mb-2">
-            Notes <span className="text-[var(--taupe-dark)] font-normal">(optional)</span>
+          <label className="block text-xs font-medium text-mocha mb-2">
+            Notes <span className="text-taupe-dark font-normal">(optional)</span>
           </label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
             placeholder="Tasting notes, the vibe..."
-            className="w-full px-4 py-3 bg-white border border-[var(--taupe)]/30 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[var(--coffee)]/20"
+            className="w-full px-4 py-3 bg-white border border-(--taupe)/30 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-(--coffee)/20"
           />
         </div>
 
@@ -357,7 +368,7 @@ export default function LogPage() {
           disabled={loading || !selectedCafeId || !drinkType.trim()}
           className={clsx(
             "w-full py-3.5 rounded-lg font-medium transition-all",
-            "bg-[var(--coffee)] text-white hover:bg-[var(--espresso)]",
+            "bg-coffee text-white hover:bg-espresso",
             "disabled:opacity-50 disabled:cursor-not-allowed"
           )}
         >
