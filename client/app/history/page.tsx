@@ -1,11 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getDrinks, getCafes, deleteDrink, type Drink, type Cafe } from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,11 +30,7 @@ export default function HistoryPage() {
   const [filterCafeId, setFilterCafeId] = useState<string>('all');
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  useEffect(() => {
-    loadData();
-  }, [filterCafeId]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const [drinksData, cafesData] = await Promise.all([
@@ -47,7 +48,11 @@ export default function HistoryPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterCafeId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -88,54 +93,44 @@ export default function HistoryPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      {/* Filters */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2 -mx-2 px-2">
-        <Badge
-          variant={filterCafeId === 'all' ? 'default' : 'outline'}
-          className={clsx(
-            "cursor-pointer whitespace-nowrap",
-            filterCafeId === 'all'
-              ? "bg-[var(--coffee)] hover:bg-[var(--espresso)]"
-              : "hover:border-[var(--coffee)]/30"
-          )}
-          onClick={() => setFilterCafeId('all')}
-        >
-          All
-        </Badge>
-        {cafes.slice(0, 5).map((cafe) => (
-          <Badge
-            key={cafe.id}
-            variant={filterCafeId === String(cafe.id) ? 'default' : 'outline'}
-            className={clsx(
-              "cursor-pointer whitespace-nowrap",
-              filterCafeId === String(cafe.id)
-                ? "bg-[var(--coffee)] hover:bg-[var(--espresso)]"
-                : "hover:border-[var(--coffee)]/30"
-            )}
-            onClick={() => setFilterCafeId(String(cafe.id))}
-          >
-            {cafe.name}
-          </Badge>
-        ))}
+      {/* Filter */}
+      <div className="mb-6">
+        <Select value={filterCafeId} onValueChange={setFilterCafeId}>
+          <SelectTrigger className="w-full max-w-[200px] border-(--taupe)/30 focus:ring-(--coffee)/20">
+            <SelectValue placeholder="Filter by cafe" />
+          </SelectTrigger>
+          <SelectContent className="bg-white border-(--taupe)/20">
+            <SelectItem value="all" className="focus:bg-linen">All Cafes</SelectItem>
+            {cafes.map((cafe) => (
+              <SelectItem
+                key={cafe.id}
+                value={String(cafe.id)}
+                className="focus:bg-linen"
+              >
+                {cafe.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Drinks List */}
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="w-6 h-6 border-2 border-[var(--taupe)] border-t-[var(--coffee)] rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-taupe border-t-coffee rounded-full animate-spin" />
         </div>
       ) : drinks.length === 0 ? (
         <div className="text-center py-16">
-          <p className="text-[var(--mocha)]">No entries yet</p>
+          <p className="text-mocha">No entries yet</p>
         </div>
       ) : (
         <div className="space-y-6">
           {Object.entries(groupedDrinks).map(([dateKey, dayDrinks]) => (
             <div key={dateKey}>
-              <p className="text-xs font-medium text-[var(--taupe-dark)] mb-2 px-1">
+              <p className="text-xs font-medium text-taupe-dark mb-2 px-1">
                 {formatDate(dayDrinks[0].logged_at)}
               </p>
-              <div className="bg-white rounded-xl border border-[var(--taupe)]/20 divide-y divide-[var(--taupe)]/10">
+              <div className="bg-white rounded-xl border border-(--taupe)/20 divide-y divide-(--taupe)/10">
                 <AnimatePresence mode="popLayout">
                   {dayDrinks.map((drink) => (
                     <motion.div
@@ -154,11 +149,11 @@ export default function HistoryPage() {
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-baseline gap-2">
-                            <span className="font-medium text-[var(--coffee)]">{drink.drink_type}</span>
-                            <span className="text-sm text-[var(--taupe-dark)]">at {drink.cafe_name}</span>
+                            <span className="font-medium text-coffee">{drink.drink_type}</span>
+                            <span className="text-sm text-taupe-dark">at {drink.cafe_name}</span>
                           </div>
                           {drink.notes && (
-                            <p className="text-sm text-[var(--mocha)] mt-0.5 truncate">{drink.notes}</p>
+                            <p className="text-sm text-mocha mt-0.5 truncate">{drink.notes}</p>
                           )}
                         </div>
 
@@ -167,7 +162,7 @@ export default function HistoryPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => setDeleteId(drink.id)}
-                          className="text-xs text-[var(--taupe-dark)] hover:text-[var(--terracotta)] opacity-0 group-hover:opacity-100 transition-opacity h-auto py-1"
+                          className="text-xs text-taupe-dark hover:text-terracotta opacity-0 group-hover:opacity-100 transition-opacity h-auto py-1"
                         >
                           Remove
                         </Button>
@@ -185,18 +180,18 @@ export default function HistoryPage() {
       <AlertDialog open={deleteId !== null} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent className="bg-white max-w-xs">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-[var(--coffee)]">Remove entry?</AlertDialogTitle>
-            <AlertDialogDescription className="text-[var(--mocha)]">
-              This can't be undone.
+            <AlertDialogTitle className="text-coffee">Remove entry?</AlertDialogTitle>
+            <AlertDialogDescription className="text-mocha">
+              This can&apos;t be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-[var(--taupe)]/30 text-[var(--mocha)] hover:bg-[var(--linen)]">
+            <AlertDialogCancel className="border-(--taupe)/30 text-mocha hover:bg-linen">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-[var(--terracotta)] hover:bg-[var(--terracotta)]/90 text-white"
+              className="bg-terracotta hover:bg-(--terracotta)/90 text-white"
             >
               Remove
             </AlertDialogAction>
