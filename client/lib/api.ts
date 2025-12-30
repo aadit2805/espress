@@ -269,3 +269,68 @@ export const convertWishlistToCafe = async (id: number): Promise<Cafe> => {
   if (!res.ok) throw new Error('Failed to convert wishlist item');
   return res.json();
 };
+
+// AI Features
+export interface ParsedDrinkInput {
+  drink_type: string | null;
+  cafe_name: string | null;
+  cafe_id: number | null;
+  matched_cafe_name: string | null;
+  location_hint: string | null;
+  places_search_query: string | null;
+  flavor_tags: string[];
+  price: number | null;
+  rating: number | null;
+  notes: string | null;
+}
+
+export interface ParseDrinkResponse {
+  success: boolean;
+  data?: ParsedDrinkInput;
+  raw_interpretation?: string;
+  error?: string;
+}
+
+export interface FlavorRecommendation {
+  suggestion: string;
+  reasoning: string;
+  recommended_tags: string[];
+  try_next_drink: string | null;
+}
+
+export interface UserProfile {
+  favorite_tags: string[];
+  high_rated_tags?: string[];
+  unexplored_tags?: string[];
+  total_drinks_analyzed: number;
+}
+
+export interface RecommendationResponse {
+  success: boolean;
+  recommendation?: FlavorRecommendation;
+  user_profile?: UserProfile;
+  error?: string;
+}
+
+export const parseNaturalLanguage = async (text: string): Promise<ParseDrinkResponse> => {
+  const res = await fetchWithAuth(`${API_URL}/api/ai/parse`, {
+    method: 'POST',
+    body: JSON.stringify({ text }),
+  });
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    return { success: false, error: error.error || 'Failed to parse input' };
+  }
+  return res.json();
+};
+
+export const getRecommendations = async (): Promise<RecommendationResponse> => {
+  const res = await fetchWithAuth(`${API_URL}/api/ai/recommendations`, {
+    method: 'POST',
+  });
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    return { success: false, error: error.error || 'Failed to get recommendations' };
+  }
+  return res.json();
+};
