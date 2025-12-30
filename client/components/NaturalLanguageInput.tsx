@@ -4,14 +4,13 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Loader2, ChevronDown, ChevronUp, Check } from 'lucide-react';
 import { clsx } from 'clsx';
-import { parseNaturalLanguage, type ParsedDrinkInput, type Cafe } from '@/lib/api';
+import { parseNaturalLanguage, type ParsedDrinkInput } from '@/lib/api';
 
 interface NaturalLanguageInputProps {
   onParsed: (data: ParsedDrinkInput, needsNewCafe: boolean) => void;
-  existingCafes: Cafe[];
 }
 
-export function NaturalLanguageInput({ onParsed, existingCafes }: NaturalLanguageInputProps) {
+export function NaturalLanguageInput({ onParsed }: NaturalLanguageInputProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [text, setText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -75,7 +74,7 @@ export function NaturalLanguageInput({ onParsed, existingCafes }: NaturalLanguag
           animate={{ opacity: 1, y: 0 }}
           type="button"
           onClick={() => setIsExpanded(true)}
-          className="w-full p-4 bg-gradient-to-r from-terracotta/10 to-coffee/10 border border-terracotta/20 rounded-xl hover:border-terracotta/40 transition-all text-left group"
+          className="w-full p-4 bg-linear-to-r from-terracotta/10 to-coffee/10 border border-terracotta/20 rounded-xl hover:border-terracotta/40 transition-all text-left group"
         >
           <div className="flex items-center gap-3">
             <div className="p-2 bg-white rounded-lg">
@@ -84,7 +83,7 @@ export function NaturalLanguageInput({ onParsed, existingCafes }: NaturalLanguag
             <div className="flex-1">
               <p className="font-medium text-coffee text-sm">Quick add with AI</p>
               <p className="text-xs text-mocha">
-                Type naturally: "amazing cortado at Blue Bottle, fruity, $6"
+                Type naturally: &quot;amazing cortado at Blue Bottle, fruity, $6&quot;
               </p>
             </div>
             <ChevronDown className="w-4 h-4 text-taupe-dark group-hover:text-coffee transition-colors" />
