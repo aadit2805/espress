@@ -214,7 +214,7 @@ export default function LogPage() {
   return (
     <div className="max-w-md mx-auto">
       {/* AI Quick Add */}
-      <NaturalLanguageInput onParsed={handleAIParsed} existingCafes={cafes} />
+      <NaturalLanguageInput onParsed={handleAIParsed} />
 
       {/* AI Recommendation */}
       {recommendation && (
