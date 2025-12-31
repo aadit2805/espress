@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { getCafes, createCafe, createDrink, getDrinkTypes, getLastDrink, getRecommendations, type Cafe, type Drink, type ParsedDrinkInput, type FlavorRecommendation } from '@/lib/api';
+import { getCafes, createCafe, createDrink, getDrinkTypes, getLastDrink, getRecommendations, getRankingsByTier, getTierCounts, addDrinkToRankings, type Cafe, type Drink, type ParsedDrinkInput, type FlavorRecommendation, type QualityTier, type RankedDrink } from '@/lib/api';
+import { ComparisonModal } from '@/components/ComparisonModal';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as Select from '@radix-ui/react-select';
@@ -29,7 +30,7 @@ export default function LogPage() {
   // Form state
   const [selectedCafeId, setSelectedCafeId] = useState<string>('');
   const [drinkType, setDrinkType] = useState('');
-  const [rating, setRating] = useState<number>(4);
+  const [qualityTier, setQualityTier] = useState<QualityTier>('good');
   const [notes, setNotes] = useState('');
   const [price, setPrice] = useState<string>('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -44,6 +45,11 @@ export default function LogPage() {
   // AI Recommendations
   const [recommendation, setRecommendation] = useState<FlavorRecommendation | null>(null);
   const [loadingRec, setLoadingRec] = useState(false);
+
+  // Ranking flow state
+  const [showComparison, setShowComparison] = useState(false);
+  const [drinkToRank, setDrinkToRank] = useState<{ id: number; drink_type: string; cafe_name: string; tier: QualityTier } | null>(null);
+  const [tierRankings, setTierRankings] = useState<RankedDrink[]>([]);
 
   useEffect(() => {
     loadData();
@@ -92,7 +98,6 @@ export default function LogPage() {
   const handleAIParsed = (data: ParsedDrinkInput, needsNewCafe: boolean) => {
     // Set drink details
     if (data.drink_type) setDrinkType(data.drink_type);
-    if (data.rating) setRating(data.rating);
     if (data.price) setPrice(String(data.price));
     if (data.flavor_tags.length > 0) setSelectedTags(data.flavor_tags);
     if (data.notes) setNotes(data.notes);
@@ -191,20 +196,61 @@ export default function LogPage() {
 
     setLoading(true);
     try {
-      await createDrink({
+      const cafe = cafes.find(c => c.id === Number(selectedCafeId));
+      const newDrink = await createDrink({
         cafe_id: Number(selectedCafeId),
         drink_type: drinkType,
-        rating,
+        quality_tier: qualityTier,
         notes: notes || undefined,
         price: price ? parseFloat(price) : undefined,
         flavor_tags: selectedTags.length > 0 ? selectedTags : undefined,
       });
-      router.push('/history');
+
+      // Get rankings in this tier for comparison
+      const tierDrinks = await getRankingsByTier(qualityTier);
+
+      if (tierDrinks.length >= 1) {
+        // Show comparison modal
+        setDrinkToRank({
+          id: newDrink.id,
+          drink_type: drinkType,
+          cafe_name: cafe?.name || '',
+          tier: qualityTier,
+        });
+        setTierRankings(tierDrinks);
+        setShowComparison(true);
+        setLoading(false);
+        return;
+      } else {
+        // First drink in tier - add at rank 1
+        await addDrinkToRankings(newDrink.id, qualityTier, 1);
+        router.push('/rankings');
+      }
     } catch (error) {
       console.error('Error logging drink:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleComparisonComplete = async (rank: number) => {
+    if (!drinkToRank) return;
+    try {
+      await addDrinkToRankings(drinkToRank.id, drinkToRank.tier, rank);
+      router.push('/rankings');
+    } catch (error) {
+      console.error('Error adding ranking:', error);
+      router.push('/rankings');
+    } finally {
+      setShowComparison(false);
+      setDrinkToRank(null);
+    }
+  };
+
+  const handleComparisonCancel = () => {
+    setShowComparison(false);
+    setDrinkToRank(null);
+    router.push('/rankings');
   };
 
   const filteredDrinkTypes = drinkTypes.filter(
@@ -440,29 +486,29 @@ export default function LogPage() {
           )}
         </div>
 
-        {/* Rating */}
+        {/* Quality Tier */}
         <div>
-          <label className="block text-xs font-medium text-mocha mb-2">Rating</label>
+          <label className="block text-xs font-medium text-mocha mb-2">How was it?</label>
           <div className="flex gap-1">
-            {[1, 2, 3, 4, 5].map((n) => (
+            {[
+              { value: 'good' as QualityTier, label: 'Good' },
+              { value: 'mid' as QualityTier, label: 'Mid' },
+              { value: 'bad' as QualityTier, label: 'Bad' },
+            ].map((tier) => (
               <button
-                key={n}
+                key={tier.value}
                 type="button"
-                onClick={() => setRating(n)}
+                onClick={() => setQualityTier(tier.value)}
                 className={clsx(
                   "flex-1 py-3 rounded-lg text-sm font-medium transition-all",
-                  rating === n
+                  qualityTier === tier.value
                     ? "bg-coffee text-white"
                     : "bg-white border border-(--taupe)/30 text-mocha hover:border-(--coffee)/30"
                 )}
               >
-                {n}
+                {tier.label}
               </button>
             ))}
-          </div>
-          <div className="flex justify-between mt-1.5 text-[10px] text-taupe-dark px-1">
-            <span>Skip it</span>
-            <span>Perfect</span>
           </div>
         </div>
 
@@ -537,6 +583,16 @@ export default function LogPage() {
           {loading ? 'Saving...' : 'Log Entry'}
         </button>
       </motion.form>
+
+      {/* Comparison Modal */}
+      {showComparison && drinkToRank && (
+        <ComparisonModal
+          drink={drinkToRank}
+          tierRankings={tierRankings}
+          onComplete={handleComparisonComplete}
+          onCancel={handleComparisonCancel}
+        />
+      )}
     </div>
   );
 }
