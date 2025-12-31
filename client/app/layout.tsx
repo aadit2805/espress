@@ -52,7 +52,7 @@ export default function RootLayout({
                 <div className="flex items-center gap-6 md:gap-10">
                   <SignedIn>
                     <NavLink href="/journal">Journal</NavLink>
-                    <NavLink href="/history">Archive</NavLink>
+                    <NavLink href="/rankings">Rankings</NavLink>
                     <NavLink href="/stats">Insights</NavLink>
                     <NavLink href="/map">Map</NavLink>
                     <NavLink href="/wishlist">Wishlist</NavLink>
