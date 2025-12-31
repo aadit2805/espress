@@ -9,6 +9,7 @@ import statsRouter from './routes/stats';
 import userRouter from './routes/user';
 import wishlistRouter from './routes/wishlist';
 import aiRouter from './routes/ai';
+import rankingsRouter from './routes/rankings';
 import { requireAuth } from './middleware/auth';
 import './db'; // Initialize DB connection
 
@@ -58,6 +59,7 @@ app.use('/api/stats', limiter, requireAuth, statsRouter);
 app.use('/api/user', limiter, requireAuth, userRouter);
 app.use('/api/wishlist', limiter, requireAuth, wishlistRouter);
 app.use('/api/ai', aiLimiter, requireAuth, aiRouter);
+app.use('/api/rankings', limiter, requireAuth, rankingsRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
