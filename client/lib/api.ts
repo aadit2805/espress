@@ -66,6 +66,42 @@ export interface WishlistItem {
   created_at: string;
 }
 
+export type QualityTier = 'good' | 'mid' | 'bad';
+
+export interface RankedDrink {
+  ranking_id: number;
+  quality_tier: QualityTier;
+  tier_rank: number;
+  score: number;
+  ranked_at: string;
+  drink_id: number;
+  drink_type: string;
+  logged_at: string;
+  notes: string | null;
+  cafe_id: number;
+  cafe_name: string;
+  cafe_city: string | null;
+  cafe_photo: string | null;
+}
+
+export interface UnrankedDrink {
+  drink_id: number;
+  drink_type: string;
+  quality_tier: QualityTier;
+  logged_at: string;
+  notes: string | null;
+  cafe_id: number;
+  cafe_name: string;
+  cafe_city: string | null;
+  cafe_photo: string | null;
+}
+
+export interface TierCounts {
+  good: number;
+  mid: number;
+  bad: number;
+}
+
 export interface RatingTrend {
   week: string;
   avg_rating: string;
@@ -190,13 +226,13 @@ export const getLastDrink = async (): Promise<Drink | null> => {
 export const createDrink = async (data: {
   cafe_id: number;
   drink_type: string;
-  rating: number;
+  quality_tier: QualityTier;
   notes?: string;
   logged_at?: string;
   price?: number;
   flavor_tags?: string[];
   photo_url?: string;
-}): Promise<Drink> => {
+}): Promise<Drink & { id: number }> => {
   const res = await fetchWithAuth(`${API_URL}/api/drinks`, {
     method: 'POST',
     body: JSON.stringify(data),
@@ -333,4 +369,66 @@ export const getRecommendations = async (): Promise<RecommendationResponse> => {
     return { success: false, error: error.error || 'Failed to get recommendations' };
   }
   return res.json();
+};
+
+// Rankings
+export const getRankings = async (): Promise<RankedDrink[]> => {
+  const res = await fetchWithAuth(`${API_URL}/api/rankings`);
+  if (!res.ok) throw new Error('Failed to fetch rankings');
+  return res.json();
+};
+
+export const getRankingsByTier = async (tier: QualityTier): Promise<RankedDrink[]> => {
+  const res = await fetchWithAuth(`${API_URL}/api/rankings/tier/${tier}`);
+  if (!res.ok) throw new Error('Failed to fetch tier rankings');
+  return res.json();
+};
+
+export const getUnrankedDrinks = async (): Promise<UnrankedDrink[]> => {
+  const res = await fetchWithAuth(`${API_URL}/api/rankings/unranked`);
+  if (!res.ok) throw new Error('Failed to fetch unranked drinks');
+  return res.json();
+};
+
+export const getTierCounts = async (): Promise<TierCounts> => {
+  const res = await fetchWithAuth(`${API_URL}/api/rankings/counts`);
+  if (!res.ok) throw new Error('Failed to fetch tier counts');
+  return res.json();
+};
+
+export const checkDrinkRanking = async (drinkId: number): Promise<{
+  isRanked: boolean;
+  rank: number | null;
+  tier: QualityTier | null;
+  score: number | null;
+}> => {
+  const res = await fetchWithAuth(`${API_URL}/api/rankings/check/${drinkId}`);
+  if (!res.ok) throw new Error('Failed to check drink ranking');
+  return res.json();
+};
+
+export const addDrinkToRankings = async (drinkId: number, tier: QualityTier, rank: number): Promise<void> => {
+  const res = await fetchWithAuth(`${API_URL}/api/rankings`, {
+    method: 'POST',
+    body: JSON.stringify({ drink_id: drinkId, tier, rank }),
+  });
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.error || 'Failed to add to rankings');
+  }
+};
+
+export const reorderTierRankings = async (tier: QualityTier, rankings: { drink_id: number; rank: number }[]): Promise<void> => {
+  const res = await fetchWithAuth(`${API_URL}/api/rankings/reorder`, {
+    method: 'PUT',
+    body: JSON.stringify({ tier, rankings }),
+  });
+  if (!res.ok) throw new Error('Failed to reorder rankings');
+};
+
+export const removeFromRankings = async (drinkId: number): Promise<void> => {
+  const res = await fetchWithAuth(`${API_URL}/api/rankings/${drinkId}`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) throw new Error('Failed to remove from rankings');
 };
