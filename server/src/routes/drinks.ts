@@ -127,19 +127,19 @@ const sanitizeImageUrl = (url: string | null | undefined): string | null => {
 // POST create drink
 router.post('/', async (req, res) => {
   try {
-    const { cafe_id, drink_type, rating, notes, logged_at, price, flavor_tags, photo_url } = req.body;
+    const { cafe_id, drink_type, quality_tier, notes, logged_at, price, flavor_tags, photo_url } = req.body;
     const userId = req.userId;
 
     // Validation
-    if (!cafe_id || !drink_type || rating === undefined) {
+    if (!cafe_id || !drink_type || !quality_tier) {
       return res.status(400).json({
-        error: 'cafe_id, drink_type, and rating are required'
+        error: 'cafe_id, drink_type, and quality_tier are required'
       });
     }
 
-    if (rating < 0 || rating > 5) {
+    if (!['good', 'mid', 'bad'].includes(quality_tier)) {
       return res.status(400).json({
-        error: 'Rating must be between 0 and 5'
+        error: 'quality_tier must be good, mid, or bad'
       });
     }
 
@@ -166,12 +166,12 @@ router.post('/', async (req, res) => {
     }
 
     const result = await pool.query(
-      `INSERT INTO drinks (cafe_id, drink_type, rating, notes, logged_at, user_id, price, flavor_tags, photo_url)
+      `INSERT INTO drinks (cafe_id, drink_type, quality_tier, notes, logged_at, user_id, price, flavor_tags, photo_url)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
       [
         cafe_id,
         sanitizeText(drink_type),
-        rating,
+        quality_tier,
         sanitizeText(notes),
         logged_at || new Date(),
         userId,
